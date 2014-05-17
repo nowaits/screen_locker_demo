@@ -18,7 +18,6 @@ import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
 
-import com.demo.ScreenLocker.R;
 import com.demo.screen_locker.utils.SLog;
 import com.demo.screen_locker.utils.TexttoSpeechUtils;
 

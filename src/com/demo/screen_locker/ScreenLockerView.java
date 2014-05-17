@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 
-import com.demo.ScreenLocker.R;
 import com.demo.screen_locker.utils.SLog;
 
 @SuppressWarnings("deprecation")

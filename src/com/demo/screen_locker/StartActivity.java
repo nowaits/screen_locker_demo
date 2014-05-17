@@ -3,8 +3,6 @@ package com.demo.screen_locker;
 import android.app.Activity;
 import android.os.Bundle;
 
-import com.demo.ScreenLocker.R;
-
 public class StartActivity extends Activity {
 	public static String sTag = "";
 

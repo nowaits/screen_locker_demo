@@ -7,9 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
 
-import com.demo.ScreenLocker.R;
 import com.demo.screen_locker.utils.SLog;
-import com.demo.screen_locker.utils.TexttoSpeechUtils;
 
 public class ScreenLockerService extends Service {
 
