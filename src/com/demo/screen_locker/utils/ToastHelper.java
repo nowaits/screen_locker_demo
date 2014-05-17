@@ -34,11 +34,11 @@ class CustomToast {
 
 public class ToastHelper {
 
-	public static void showTotst(final Context context, final String msg) {
-		ToastHelper.showTotst(context, msg, 2000);
+	public static void showToast(final Context context, final String msg) {
+		ToastHelper.showToast(context, msg, 2000);
 	}
 
-	public static void showTotst(final Context context, final String msg,
+	public static void showToast(final Context context, final String msg,
 			final int time) {
 		ThreadUtils.postOnUiThread(new Runnable() {
 

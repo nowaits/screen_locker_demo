@@ -136,14 +136,16 @@ public class ScreenLockerActivity extends Activity implements
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-
-		return true;// super.onKeyDown(keyCode, event);
+		SLog.d("onKeyDown", event.toString());
+		super.onKeyDown(keyCode, event);
+		return false;// 
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
+		SLog.d("onCreateOptionsMenu", "menu");
 		return true;
 	}
 
