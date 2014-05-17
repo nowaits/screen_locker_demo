@@ -27,6 +27,7 @@ import com.demo.screen_locker.utils.SLog;
 public class ScreenLockerView implements GestureDetector.OnGestureListener,
 		Animator.AnimatorListener, AnimatorUpdateListener {
 	public static int sMaxOffsetX = 300;
+	public static int sMaxOffsetY = 300;
 	public static int sDefaultDura = 300;
 	private Context mContext = null;
 

@@ -1,11 +1,14 @@
 package com.demo.screen_locker.utils;
 
+import android.app.KeyguardManager;
 import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Vibrator;
+import android.provider.MediaStore;
 
 public class SysHelper {
 
@@ -40,6 +43,18 @@ public class SysHelper {
 			sMediaPlayer.start();
 		} catch (Exception e) {
 		}
+	}
+
+	public static void LunchCamera(Context context) {
+		Intent i = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
+		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(i);
+	}
+	
+	public static boolean isKeyguardSecure(Context c){
+		KeyguardManager mgr = (KeyguardManager) c.getSystemService(Context.KEYGUARD_SERVICE);
+		 
+		return mgr.isKeyguardSecure();
 	}
 
 }

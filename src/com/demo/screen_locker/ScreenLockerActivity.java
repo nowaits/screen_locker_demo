@@ -4,6 +4,8 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.app.Activity;
+import android.app.KeyguardManager;
+import android.app.KeyguardManager.KeyguardLock;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +21,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
 
 import com.demo.screen_locker.utils.SLog;
+import com.demo.screen_locker.utils.SysHelper;
 import com.demo.screen_locker.utils.TexttoSpeechUtils;
 
 public class ScreenLockerActivity extends Activity implements
@@ -29,6 +32,12 @@ public class ScreenLockerActivity extends Activity implements
 	private View mMainView;
 
 	private ValueAnimator mAnimator = null;
+
+	enum ScrollMode {
+		Horizen, Vertical, None
+	};
+
+	private ScrollMode mScrollerHerizon = ScrollMode.None;
 
 	private final BroadcastReceiver homePressReceiver = new BroadcastReceiver() {
 		final String SYSTEM_DIALOG_REASON_KEY = "reason";
@@ -49,6 +58,40 @@ public class ScreenLockerActivity extends Activity implements
 		}
 	};
 
+	GestureDetector mGestreDetector = null;
+	View.OnTouchListener mTouchListener = new View.OnTouchListener() {
+
+		@Override
+		public boolean onTouch(View paramView, MotionEvent paramMotionEvent) {
+			if (paramMotionEvent.getAction() == MotionEvent.ACTION_UP) {
+
+				float a = 0;
+				float b = 0;
+
+				if (mScrollerHerizon == ScrollMode.Horizen) {
+					a = mMainView.getX();
+					if (mMainView.getX() >= ScreenLockerView.sMaxOffsetX) {
+						b = mMainView.getRootView().getWidth();
+					}
+
+					startAnimator(a, b, ScreenLockerView.sDefaultDura);
+				} else if (mScrollerHerizon == ScrollMode.Vertical) {
+					a = mMainView.getY();
+					if (-mMainView.getY() >= ScreenLockerView.sMaxOffsetY) {
+						b = -mMainView.getRootView().getHeight();
+
+						SysHelper.LunchCamera(ScreenLockerActivity.this);
+					}
+
+					startAnimator(a, b, ScreenLockerView.sDefaultDura);
+				}
+
+				return false;
+			}
+			return mGestreDetector.onTouchEvent(paramMotionEvent);
+		}
+	};
+
 	public static void CloseActivity() {
 		if (sScreenLockerActivity != null
 				&& !sScreenLockerActivity.isFinishing()) {
@@ -61,6 +104,9 @@ public class ScreenLockerActivity extends Activity implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		mGestreDetector = new GestureDetector(ScreenLockerActivity.this,
+				ScreenLockerActivity.this);
 
 		sScreenLockerActivity = this;
 		setContentView(R.layout.screen_locker);
@@ -77,7 +123,13 @@ public class ScreenLockerActivity extends Activity implements
 
 		// getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD);
 
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+		if (SysHelper.isKeyguardSecure(this)) {
+			getWindow().addFlags(
+					WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+		} else {
+			getWindow().addFlags(
+					WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+		}
 
 		findViewById(R.id.button).setOnClickListener(
 				new View.OnClickListener() {
@@ -91,32 +143,7 @@ public class ScreenLockerActivity extends Activity implements
 						}
 					}
 				});
-
-		findViewById(R.id.touch_move_view).setOnTouchListener(
-				new View.OnTouchListener() {
-
-					GestureDetector mGestreDetector = new GestureDetector(
-							ScreenLockerActivity.this,
-							ScreenLockerActivity.this);
-
-					@Override
-					public boolean onTouch(View paramView,
-							MotionEvent paramMotionEvent) {
-						if (paramMotionEvent.getAction() == MotionEvent.ACTION_UP) {
-							float a = mMainView.getX();
-							float b = 0;
-
-							if (mMainView.getX() >= ScreenLockerView.sMaxOffsetX) {
-								b = mMainView.getRootView().getWidth();
-							}
-
-							startAnimator(a, b, ScreenLockerView.sDefaultDura);
-
-							return false;
-						}
-						return mGestreDetector.onTouchEvent(paramMotionEvent);
-					}
-				});
+		findViewById(R.id.touch_move_view).setOnTouchListener(mTouchListener);
 	}
 
 	@Override
@@ -137,7 +164,7 @@ public class ScreenLockerActivity extends Activity implements
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		SLog.d("onKeyDown", event.toString());
 		super.onKeyDown(keyCode, event);
-		return false;// 
+		return false;//
 	}
 
 	@Override
@@ -168,7 +195,19 @@ public class ScreenLockerActivity extends Activity implements
 	public boolean onScroll(MotionEvent paramMotionEvent1,
 			MotionEvent paramMotionEvent2, float paramFloat1, float paramFloat2) {
 
-		mMainView.offsetLeftAndRight(-(int) paramFloat1);
+		if (mScrollerHerizon == ScrollMode.None) {
+			if (Math.abs(paramFloat1) > Math.abs(paramFloat2)) {
+				mScrollerHerizon = ScrollMode.Horizen;
+			} else {
+				mScrollerHerizon = ScrollMode.Vertical;
+			}
+		}
+		if (mScrollerHerizon == ScrollMode.Horizen) {
+			mMainView.offsetLeftAndRight(-(int) paramFloat1);
+		} else {
+			mMainView.offsetTopAndBottom(-(int) paramFloat2);
+		}
+
 		return false;
 	}
 
@@ -184,7 +223,12 @@ public class ScreenLockerActivity extends Activity implements
 
 	@Override
 	public void onAnimationUpdate(ValueAnimator animation) {
-		mMainView.setX(AnimatorValue());
+		if (mScrollerHerizon == ScrollMode.Horizen) {
+			mMainView.setX(AnimatorValue());
+		} else if (mScrollerHerizon == ScrollMode.Vertical) {
+			mMainView.setY(AnimatorValue());
+		}
+
 	}
 
 	@Override
@@ -194,9 +238,16 @@ public class ScreenLockerActivity extends Activity implements
 
 	@Override
 	public void onAnimationEnd(Animator animation) {
-		if (mMainView.getX() > mMainView.getRootView().getWidth() / 3) {
+
+		if (mScrollerHerizon == ScrollMode.Horizen
+				&& mMainView.getX() > mMainView.getRootView().getWidth() / 3) {
+			finish();
+		} else if (-mMainView.getY() > mMainView.getRootView().getHeight() / 3) {
+
 			finish();
 		}
+
+		mScrollerHerizon = ScrollMode.None;
 	}
 
 	@Override

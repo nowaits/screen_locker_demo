@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.os.IBinder;
 
 import com.demo.screen_locker.utils.SLog;
+import com.demo.screen_locker.utils.SysHelper;
 
 public class ScreenLockerService extends Service {
 
@@ -54,22 +55,17 @@ public class ScreenLockerService extends Service {
 				} else if (action.equals(Intent.ACTION_SCREEN_OFF)) {
 					SLog.d(StartActivity.sTag,
 							"ScreenLockerService::onReceive::ACTION_SCREEN_OFF");
-					if (true) {
-						Intent i = new Intent(context,
-								ScreenLockerActivity.class);
-						i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-						context.startActivity(i);
-					} else {
-						ScreenLockerView.ShowFloatView(
-								context,
-								R.layout.screen_locker);
-					}
+
+					Intent i = new Intent(context, ScreenLockerActivity.class);
+					i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					context.startActivity(i);
 
 				} else if (action.equals(Intent.ACTION_USER_PRESENT)) {
 					SLog.d(StartActivity.sTag,
 							"ScreenLockerService::onReceive::ACTION_USER_PRESENT");
-					ScreenLockerActivity.CloseActivity();
-					//ScreenLockerView.CloseFloatView();
+					if (SysHelper.isKeyguardSecure(context)) {
+						ScreenLockerActivity.CloseActivity();
+					}
 				}
 			}
 		};
