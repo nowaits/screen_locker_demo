@@ -4,8 +4,6 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.app.Activity;
-import android.app.KeyguardManager;
-import android.app.KeyguardManager.KeyguardLock;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -21,7 +19,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
 
 import com.demo.screen_locker.utils.SLog;
-import com.demo.screen_locker.utils.SysHelper;
+import com.demo.screen_locker.utils.SysUtils;
 import com.demo.screen_locker.utils.TexttoSpeechUtils;
 
 public class ScreenLockerActivity extends Activity implements
@@ -39,7 +37,7 @@ public class ScreenLockerActivity extends Activity implements
 
 	private ScrollMode mScrollerHerizon = ScrollMode.None;
 
-	private final BroadcastReceiver homePressReceiver = new BroadcastReceiver() {
+	private final BroadcastReceiver mHomePressReceiver = new BroadcastReceiver() {
 		final String SYSTEM_DIALOG_REASON_KEY = "reason";
 		final String SYSTEM_DIALOG_REASON_HOME_KEY = "homekey";
 
@@ -53,6 +51,9 @@ public class ScreenLockerActivity extends Activity implements
 						&& reason.equals(SYSTEM_DIALOG_REASON_HOME_KEY)) {
 					SLog.d(StartActivity.sTag,
 							"ScreenLockerActivity.Home.Press");
+					
+					if(!SysUtils.isKeyguardSecure(context))
+						ScreenLockerActivity.this.finish();
 				}
 			}
 		}
@@ -80,7 +81,7 @@ public class ScreenLockerActivity extends Activity implements
 					if (-mMainView.getY() >= ScreenLockerView.sMaxOffsetY) {
 						b = -mMainView.getRootView().getHeight();
 
-						SysHelper.LunchCamera(ScreenLockerActivity.this);
+						SysUtils.LunchCamera(ScreenLockerActivity.this);
 					}
 
 					startAnimator(a, b, ScreenLockerView.sDefaultDura);
@@ -119,11 +120,11 @@ public class ScreenLockerActivity extends Activity implements
 				| Intent.FLAG_RECEIVER_REPLACE_PENDING
 				| IntentFilter.SYSTEM_HIGH_PRIORITY);
 
-		getApplicationContext().registerReceiver(homePressReceiver, homeFilter);
+		getApplicationContext().registerReceiver(mHomePressReceiver, homeFilter);
 
 		// getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD);
 
-		if (SysHelper.isKeyguardSecure(this)) {
+		if (SysUtils.isKeyguardSecure(this)) {
 			getWindow().addFlags(
 					WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
 		} else {
@@ -154,6 +155,7 @@ public class ScreenLockerActivity extends Activity implements
 
 	@Override
 	protected void onDestroy() {
+		getApplicationContext().unregisterReceiver(mHomePressReceiver);
 		super.onDestroy();
 
 		SLog.d(StartActivity.sTag, "ScreenLockerActivity.onDestroy");

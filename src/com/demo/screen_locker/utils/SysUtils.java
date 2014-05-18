@@ -10,7 +10,7 @@ import android.net.Uri;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 
-public class SysHelper {
+public class SysUtils {
 
 	private static MediaPlayer sMediaPlayer = null;
 
@@ -50,11 +50,17 @@ public class SysHelper {
 		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(i);
 	}
-	
-	public static boolean isKeyguardSecure(Context c){
-		KeyguardManager mgr = (KeyguardManager) c.getSystemService(Context.KEYGUARD_SERVICE);
-		 
+
+	public static boolean isKeyguardSecure(Context c) {
+		KeyguardManager mgr = (KeyguardManager) c
+				.getSystemService(Context.KEYGUARD_SERVICE);
+
 		return mgr.isKeyguardSecure();
 	}
 
+	public static int killProcess() {
+		int pid = android.os.Process.myPid();
+		android.os.Process.killProcess(pid);
+		return pid;
+	}
 }

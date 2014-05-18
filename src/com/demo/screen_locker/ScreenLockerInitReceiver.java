@@ -11,7 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.demo.screen_locker.utils.SLog;
-import com.demo.screen_locker.utils.SysHelper;
+import com.demo.screen_locker.utils.SysUtils;
 import com.demo.screen_locker.utils.ToastHelper;
 
 public class ScreenLockerInitReceiver extends BroadcastReceiver {
@@ -60,7 +60,7 @@ public class ScreenLockerInitReceiver extends BroadcastReceiver {
 				context.startService(new Intent(
 						context.getApplicationContext(),
 						ScreenLockerService.class));
-				SysHelper.playSound(context);
+				SysUtils.playSound(context);
 				ToastHelper.showToast(context, "Service is Started !");
 			} else {
 				ToastHelper.showToast(context, "Service is running !");
