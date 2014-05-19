@@ -16,9 +16,6 @@ import com.demo.screen_locker.utils.SysUtils;
 import com.demo.screen_locker.utils.ToastHelper;
 
 public class ScreenLockerInitReceiver extends BroadcastReceiver {
-
-    public static PendingIntent sServiceCheckSender;
-
     public static int sCheckDuration = 5 * 60 * 1000;
     public static String sInitAction = "com.demo.ScreenLocker.locker_actions_init";
     public static String sCheckAction = "com.demo.ScreenLocker.locker_actions_check";
@@ -38,7 +35,7 @@ public class ScreenLockerInitReceiver extends BroadcastReceiver {
 
         for (RunningServiceInfo info : runningService) {
             if (info.service.getClassName().toString().equals(service_name)) {
-                return info.pid != 0 ;
+                return info.pid != 0;
             }
         }
 
@@ -54,7 +51,7 @@ public class ScreenLockerInitReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        if (intent.getAction().equals(sCheckAction)) {            
+        if (intent.getAction().equals(sCheckAction)) {
             if (!ScreenLockerInitReceiver.isServiceWorked(context)) {
                 Intent i = new Intent(ScreenLockerService.sAction);
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -82,19 +79,14 @@ public class ScreenLockerInitReceiver extends BroadcastReceiver {
             AlarmManager alarm = (AlarmManager) context
                     .getSystemService(Context.ALARM_SERVICE);
 
-            if (sServiceCheckSender != null) {
-                alarm.cancel(sServiceCheckSender);
-                sServiceCheckSender = null;
-            }
+            PendingIntent s = PendingIntent.getBroadcast(context, 1,
+                    new Intent(ScreenLockerInitReceiver.sCheckAction), 0);
 
-            Intent intentf = new Intent(ScreenLockerInitReceiver.sCheckAction);
-
-            sServiceCheckSender = PendingIntent.getBroadcast(context, 1,
-                    intentf, 0);
+            alarm.cancel(s);
 
             alarm.setRepeating(AlarmManager.RTC, 0,
                     ScreenLockerInitReceiver.sCheckDuration,
-                    sServiceCheckSender);
+                    s);
         }
     }
 }
