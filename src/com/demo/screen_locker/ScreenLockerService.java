@@ -20,7 +20,7 @@ public class ScreenLockerService extends Service {
 	}
 
 	@Override
-	public void onCreate() {
+    public void onCreate() {
 		super.onCreate();
 
 		SLog.d(StartActivity.sTag, "ScreenLockerService::onCreate");
@@ -75,9 +75,10 @@ public class ScreenLockerService extends Service {
 		filter.addAction(Intent.ACTION_SCREEN_ON);
 		filter.addAction(Intent.ACTION_SCREEN_OFF);
 		filter.addAction(Intent.ACTION_USER_PRESENT);
+		
 		filter.setPriority(Intent.FLAG_RECEIVER_REGISTERED_ONLY
 				| Intent.FLAG_RECEIVER_REPLACE_PENDING
-				| IntentFilter.SYSTEM_HIGH_PRIORITY);
+				| IntentFilter.SYSTEM_LOW_PRIORITY);
 		registerReceiver(mMasterResetReciever, filter);
 
 		SLog.d(StartActivity.sTag, "ScreenLockerService::onStart");

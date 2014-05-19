@@ -68,7 +68,7 @@ public class SLog {
 	 * @version 1.0.0.0
 	 * @par Prospective Clients: External Classes
 	 */
-	public static int d(String tag, String message) {
+    public static int d(String tag, String message) {
 		if (msLogPriority <= PRIORITY_DEBUG) {
 			if (message == null) {
 				message = "";
