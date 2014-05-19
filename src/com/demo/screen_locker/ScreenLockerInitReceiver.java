@@ -17,7 +17,8 @@ import com.demo.screen_locker.utils.ToastHelper;
 
 public class ScreenLockerInitReceiver extends BroadcastReceiver {
     public static int sCheckDuration = 5 * 60 * 1000;
-    public static String sInitAction = "com.demo.ScreenLocker.locker_actions_init";
+    public static String sStartAction = "com.demo.ScreenLocker.locker_actions_start";
+    public static String sStopAction = "com.demo.ScreenLocker.locker_actions_stop";
     public static String sCheckAction = "com.demo.ScreenLocker.locker_actions_check";
 
     public static void bind(Context context) {
@@ -42,10 +43,16 @@ public class ScreenLockerInitReceiver extends BroadcastReceiver {
         return false;
     }
 
-    public static void CheckService(Context context) {
+    public static void StartService(Context context) {
         if (!isServiceWorked(context))
             context.sendBroadcast(new Intent(
-                    ScreenLockerInitReceiver.sInitAction));
+                    ScreenLockerInitReceiver.sStartAction));
+    }
+
+    public static void StopService(Context context) {
+        if (isServiceWorked(context))
+            context.sendBroadcast(new Intent(
+                    ScreenLockerInitReceiver.sStopAction));
     }
 
     @Override
@@ -66,8 +73,22 @@ public class ScreenLockerInitReceiver extends BroadcastReceiver {
                         "InitReceiver::InitReceiver::CheckAction and Running !");
             }
 
-        } else if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)
-                || intent.getAction().equals(sInitAction)) {
+        } else if (intent.getAction().equals(sStopAction)) {
+            AlarmManager alarm = (AlarmManager) context
+                    .getSystemService(Context.ALARM_SERVICE);
+
+            PendingIntent s = PendingIntent.getBroadcast(context, 1,
+                    new Intent(ScreenLockerInitReceiver.sCheckAction), 0);
+
+            alarm.cancel(s);
+
+            context.stopService(new Intent(ScreenLockerService.sAction));
+            SLog.d(StartActivity.sTag,
+                    "InitReceiver::InitReceiver::Service is Stoped !");
+            ToastHelper.showToast(context, "Service is Stoped !");
+        }
+        else if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)
+                || intent.getAction().equals(sStartAction)) {
 
             if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED))
                 SLog.d(StartActivity.sTag,

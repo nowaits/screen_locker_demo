@@ -13,7 +13,30 @@ import com.demo.screen_locker.utils.SysUtils;
 public class ScreenLockerService extends Service {
 
 	public static String sAction = "com.demo.screen_locker.service";
+	BroadcastReceiver mMasterResetReciever = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(Intent.ACTION_SCREEN_ON)) {
+                SLog.d(StartActivity.sTag,
+                        "ScreenLockerService::onReceive::ACTION_SCREEN_ON");
+            } else if (action.equals(Intent.ACTION_SCREEN_OFF)) {
+                SLog.d(StartActivity.sTag,
+                        "ScreenLockerService::onReceive::ACTION_SCREEN_OFF");
 
+                Intent i = new Intent("ScreenLockerActivity");
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                ScreenLockerService.this.startActivity(i);
+
+            } else if (action.equals(Intent.ACTION_USER_PRESENT)) {
+                SLog.d(StartActivity.sTag,
+                        "ScreenLockerService::onReceive::ACTION_USER_PRESENT");
+                if (SysUtils.isKeyguardSecure(context)) {
+                    ScreenLockerActivity.CloseActivity();
+                }
+            }
+        }
+    };
+    
 	@Override
 	public IBinder onBind(Intent arg0) {
 		return null;
@@ -29,12 +52,13 @@ public class ScreenLockerService extends Service {
 	@Override
 	public void onDestroy() {
 		SLog.d(StartActivity.sTag, "ScreenLockerService::onDestroy");
+		unregisterReceiver(mMasterResetReciever);
 		super.onDestroy();
 	}
 
 	@Override
 	public boolean onUnbind(Intent intent) {
-		SLog.d(StartActivity.sTag, "ScreenLockerService::onUnbind");
+		SLog.d(StartActivity.sTag, "ScreenLockerService::onUnbind");		
 		return super.onUnbind(intent);
 	}
 
@@ -46,30 +70,6 @@ public class ScreenLockerService extends Service {
 
 	@Override
 	public void onStart(Intent intent, int startId) {
-		BroadcastReceiver mMasterResetReciever = new BroadcastReceiver() {
-			public void onReceive(Context context, Intent intent) {
-				String action = intent.getAction();
-				if (action.equals(Intent.ACTION_SCREEN_ON)) {
-					SLog.d(StartActivity.sTag,
-							"ScreenLockerService::onReceive::ACTION_SCREEN_ON");
-				} else if (action.equals(Intent.ACTION_SCREEN_OFF)) {
-					SLog.d(StartActivity.sTag,
-							"ScreenLockerService::onReceive::ACTION_SCREEN_OFF");
-
-					Intent i = new Intent("ScreenLockerActivity");
-					i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-					ScreenLockerService.this.startActivity(i);
-
-				} else if (action.equals(Intent.ACTION_USER_PRESENT)) {
-					SLog.d(StartActivity.sTag,
-							"ScreenLockerService::onReceive::ACTION_USER_PRESENT");
-					if (SysUtils.isKeyguardSecure(context)) {
-						ScreenLockerActivity.CloseActivity();
-					}
-				}
-			}
-		};
-
 		IntentFilter filter = new IntentFilter();
 
 		filter.addAction(Intent.ACTION_SCREEN_ON);

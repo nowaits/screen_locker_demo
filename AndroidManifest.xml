@@ -33,6 +33,7 @@
         <activity
             android:name=".ScreenLockerActivity"
             android:excludeFromRecents="true"
+            android:launchMode="singleTask"  
             android:theme="@style/Theme.Transparent" >
             <intent-filter>
                 <action android:name="ScreenLockerActivity" />
@@ -57,7 +58,8 @@
             android:priority="1000" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="com.demo.ScreenLocker.locker_actions_init" />
+                <action android:name="com.demo.ScreenLocker.locker_actions_start" />
+                <action android:name="com.demo.ScreenLocker.locker_actions_stop" />
                 <action android:name="com.demo.ScreenLocker.locker_actions_check" />
 
                 <category android:name="android.intent.category.LAUNCHER" />

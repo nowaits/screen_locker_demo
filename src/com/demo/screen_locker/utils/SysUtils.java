@@ -1,6 +1,8 @@
 
 package com.demo.screen_locker.utils;
 
+import java.lang.reflect.Method;
+
 import android.app.KeyguardManager;
 import android.app.Service;
 import android.content.Context;
@@ -8,6 +10,7 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 
@@ -47,16 +50,34 @@ public class SysUtils {
     }
 
     public static void LunchCamera(Context context) {
-        Intent i = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
+        String action = MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA;
+
+        if (isKeyguardSecure(context)
+                && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            action = MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA_SECURE;
+        }
+
+        Intent i = new Intent(action);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(i);
     }
 
     public static boolean isKeyguardSecure(Context c) {
-        KeyguardManager mgr = (KeyguardManager) c
-                .getSystemService(Context.KEYGUARD_SERVICE);
 
-        return mgr.isKeyguardSecure();
+        boolean is_keyguard_s = true;
+
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                Object statusBarManager = c.getSystemService(Context.KEYGUARD_SERVICE);
+                Method method = statusBarManager.getClass().getMethod("isKeyguardSecure");
+                Object ret_obj = method.invoke(statusBarManager);
+                if (ret_obj instanceof Boolean) {
+                    is_keyguard_s = ((Boolean) ret_obj).booleanValue();
+                }               
+            }
+        } catch (Exception localException) {
+        }
+        return is_keyguard_s;
     }
 
     public static int killProcess() {
