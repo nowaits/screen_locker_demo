@@ -38,7 +38,7 @@ public class ScreenLockerInitReceiver extends BroadcastReceiver {
 
         for (RunningServiceInfo info : runningService) {
             if (info.service.getClassName().toString().equals(service_name)) {
-                return true;
+                return info.pid != 0 ;
             }
         }
 
@@ -54,17 +54,19 @@ public class ScreenLockerInitReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        if (intent.getAction().equals(sCheckAction)) {
-            SLog.d(StartActivity.sTag,
-                    "InitReceiver::InitReceiver::sCheckAction");
+        if (intent.getAction().equals(sCheckAction)) {            
             if (!ScreenLockerInitReceiver.isServiceWorked(context)) {
-                context.startService(new Intent(
-                        context.getApplicationContext(),
-                        ScreenLockerService.class));
+                Intent i = new Intent(ScreenLockerService.sAction);
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startService(i);
                 SysUtils.playSound(context);
                 ToastHelper.showToast(context, "Service is Started !");
+                SLog.d(StartActivity.sTag,
+                        "InitReceiver::InitReceiver::CheckAction and Start OK !");
             } else {
                 ToastHelper.showToast(context, "Service is running !");
+                SLog.d(StartActivity.sTag,
+                        "InitReceiver::InitReceiver::CheckAction and Running !");
             }
 
         } else if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)

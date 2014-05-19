@@ -12,7 +12,7 @@ import com.demo.screen_locker.utils.SysUtils;
 
 public class ScreenLockerService extends Service {
 
-	public static String sAction = "com.demo.ScreenLocker.service";
+	public static String sAction = "com.demo.screen_locker.service";
 
 	@Override
 	public IBinder onBind(Intent arg0) {
