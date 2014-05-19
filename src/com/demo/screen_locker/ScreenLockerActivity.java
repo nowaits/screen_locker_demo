@@ -17,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import com.demo.screen_locker.utils.SLog;
@@ -156,6 +157,18 @@ public class ScreenLockerActivity extends Activity implements
     @Override
     protected void onResume() {
         super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        View focus_view = getCurrentFocus();
+        if (focus_view != null) {
+            ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(
+                    focus_view.getWindowToken(),
+                    InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+
     }
 
     @Override
